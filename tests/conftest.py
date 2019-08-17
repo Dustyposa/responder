@@ -1,9 +1,11 @@
 import graphene
-import responder
 from pathlib import Path
 import pytest
 import multiprocessing
 import concurrent.futures
+
+import responder
+from responder.templates import Templates
 
 
 @pytest.fixture
@@ -56,3 +58,23 @@ def schema():
             return f"Hello {name}"
 
     return graphene.Schema(query=Query)
+
+
+@pytest.fixture
+def templates_dir(tmpdir_factory):
+    return tmpdir_factory.mktemp("templates")
+
+
+@pytest.fixture
+def templates(templates_dir):
+    return Templates(templates_dir)
+
+
+@pytest.fixture
+def template_file(templates, tmpdir_factory):
+    templates_dir = tmpdir_factory.mktemp("templates")
+
+    template = templates_dir.join("index.html")
+    template.write("<h1>Hello {{ name }}!</h1>")
+
+    return template
